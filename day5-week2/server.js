@@ -4,7 +4,8 @@ const fs = require('fs');
 let type = {
     '/json': 'application/json',
     '/txt': 'text/plain',
-    '/jpg': 'image/jpeg'
+    '/jpg': 'image/jpeg',
+    '/':'home-head'
 }
 
 const server = http.createServer((req, res) => {
