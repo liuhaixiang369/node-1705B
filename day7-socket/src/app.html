@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>简陋聊天室</title>
+    <style>
+        *{
+            padding:0;
+            margin:0;
+        }
+        html,body{
+            width:100%;
+            height:100%;
+        }
+        .home{
+            width:100%;
+            height:100%;
+            background: url('http://169.254.204.99:8000/static/1.jpg');
+        }
+        .login{
+            width:25%;
+            height: 250px;
+            border:1px solid #ccc;
+            position: fixed;
+            left:36.5%;
+            top:100px;
+            background: #fff;
+            text-align: center;
+        }
+        header{
+            height:40px;
+            border-bottom: 1px solid #ccc;
+            line-height: 40px;
+            text-align: center;
+        }
+        .btn{
+            width:80px;
+            height:30px;
+            background: red;
+            color:#fff;
+            border:none;
+            margin-top: 20px;
+        }
+        p{
+            margin-top: 20px;
+        }
+        input{
+            width:60%;
+            height:30px;
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="home">
+        <div class="login">
+            <header>登录/注册</header>
+            <p>账号:<input type="text" placeholder="请输入账号" id="name"></p>
+            <p>密码:<input type="password" placeholder="请输入密码" id="pwd"></p>
+            <button class="btn">登录</button>
+        </div>
+    </div>
+    <script>
+        let btn=document.querySelector('.btn');
+        let name=document.getElementById('name');
+        let pwd=document.getElementById('pwd');
+        let reg=/^[a-z0-9_-]{3,16}$/;
+        let reg1=/^[a-z0-9_-]{6,18}$/;
+        let ws=new WebSocket('ws://169.254.204.99:3000');
+
+        btn.onclick=()=>{
+            if(name.value!==''&&pwd.value!==''){
+                if(reg.test(name.value)&&reg1.test(pwd.value)){
+                    // let user=name.value;
+                    // ws.send(user);
+                    localStorage.setItem('username',name.value);
+                    localStorage.setItem('password',pwd.value);
+                    location.href='./index.html';
+                }else{
+                    name.value='';
+                    pwd.value='';
+                    alert('请输入正确的账号密码');
+                }
+            }else{
+                alert('参数不完整')
+            }
+        }
+    </script>
+</body>
+</html>

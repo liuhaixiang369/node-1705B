@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>聊天室主页</title>
+    <style>
+        *{
+            padding:0;
+            margin:0;
+            list-style: none;
+        }
+        html,body{
+            width:100%;
+            height:100%;
+        }
+        .home{
+            width:100%;
+            height: 100%;
+            background: url('http://169.254.204.99:8000/static/1.jpg');
+        }
+        header{
+            width: 100%;
+            height: 40px;
+            border-bottom: 1px solid #000;
+            text-align: center;
+            line-height: 40px;
+        }
+        .box{
+            width: 300px;
+            height: 500px;
+            border:1px solid #000;
+            position: fixed;
+            left:38%;
+            top:20px;
+        }
+        .test{
+            width: 100%;
+            height: 350px;
+            overflow: auto;
+        }
+        .bottom{
+            border-top: 1px solid #000;
+            width: 100%;
+            height: 100px;
+        }
+        .mytest{
+            text-align: right;
+        }
+        #ipt{
+            width:80%;
+            height: 20px;
+            outline: none;
+            margin: 3px;
+        }
+        button{
+            width: 40px;
+            height: 25px;
+            background: green;
+            color:#fff;
+        }
+        .btns{
+            width: 100%;
+            height: 80px;
+            text-align: center;
+        }
+        span{
+            display: inline-block;
+            width: 25px;
+            height: 20px;
+            text-align: center;
+            line-height: 20px;
+            background: #ccc;
+            margin: 2px;
+        }
+        b{
+            display: inline-block;
+            height:25px;
+            background: red;
+            color:#fff;
+        }
+        li{
+            margin-top: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="home">
+        <div class="box">
+            <header>聊天</header>
+            <div class="test">
+    
+            </div>
+            <div class="bottom">
+                <input type="text" id='ipt'>
+                <button>发送</button>
+                <div class="btns">
+    
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        let ws=new WebSocket('ws://169.254.204.99:3000');
+        let ipt=document.getElementById('ipt');
+        let btn=document.querySelector('button');
+        let test=document.querySelector('.test');
+        let btns=document.querySelector('.btns');
+        let arr=['Q','W','E','F','S','Q','W','E','F','S','Q','W','E','F','S','Q','W','E','F','S','Q','W','E','F','S','z']
+        function newMsg(){
+            let val=ipt.value;
+            let username=localStorage.getItem('username');
+            ws.send(JSON.stringify({val,username}));
+            let li=document.createElement('li');
+            li.classList.add('mytest');
+            li.innerHTML=`${val}<b>${username}</b>`;
+            test.appendChild(li);
+            ipt.value='';
+        }
+        btn.onclick=()=>{
+            newMsg();
+        }
+        document.onkeydown=(e)=>{
+            if(e.keyCode===13){
+                newMsg();
+            }
+        }
+        ws.onmessage=(msg)=>{
+            const data=JSON.parse(msg.data);
+            if(data.type=='msg'){
+                let str=JSON.parse(data.data);
+                let li=document.createElement('li');
+                li.innerHTML=`<b>${str.username}</b>${str.val}`;
+                test.appendChild(li);
+            }else if(data.type=='alert'){
+                alert(data.data)
+            }
+        }
+        for(let i=0;i<arr.length;i++){
+            btns.innerHTML+=`<span>${arr[i]}</span>`;
+        }
+    </script>
+</body>
+</html>
