@@ -106,14 +106,22 @@
             width="30%"
             center>
             <el-form :model="ruleForm" status-icon ref="ruleForm" label-width="100px" class="demo-ruleForm">
-              <el-form-item label="备注" prop="title">
+              <el-form-item label="备注" prop="title" :rules="[
+                { required: true, message: '请输入备注名称', trigger: 'blur' },
+                { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
+              ]">
                 <el-input type="text" v-model="ruleForm.title" autocomplete="off"></el-input>
               </el-form-item>
-              <el-form-item label="类型" prop="auth">
+              <el-form-item label="类型" prop="auth" :rules="[
+                { required: true, message: '类型不能为空'},
+              ]">
                 <el-input type="text" v-model="ruleForm.auth" autocomplete="off"></el-input>
               </el-form-item>
-              <el-form-item label="排序" prop="isagain">
-                <el-input type="text" v-model="ruleForm.isagain" autocomplete="off"></el-input>
+              <el-form-item label="排序" prop="isagain" :rules="[
+                { required: true, message: '序号不能为空'},
+                { type: 'number', message: '序号必须为数字值'}
+              ]">
+                <el-input type="text" v-model.number="ruleForm.isagain" autocomplete="off"></el-input>
               </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">
@@ -164,21 +172,29 @@ export default {
     },
     //删除
     del(id) {
-      this.axios.get('/api/delete',{params:{id}}).then((res)=>{
+      this.axios.get('/api/delete',{params:{id}}).then((res)=>{   
         if(res.data.code===1){
-          this.getData();
+          if(this.tableData.length==1){
+            this.pageNum-=1;
+            this.getData();
+          }else{
+            this.getData();
+          }
+          this.$message({
+            message: '删除成功',
+            type: 'warning'
+          });  
         }
       })
     },
     //获取数据
     getData(){
       let {pageNum,limit}=this;
-      this.axios.get('/api/list',{params:{pageNum,limit}}).then((res)=>{
+      this.axios.get('/api/list',{params:{pageNum,limit}}).then((res)=>{ 
         this.tableData=res.data.data;
         this.total=res.data.total;
       })
     },
-   
     //点击添加弹出遮罩层
     addItem(){
       this.flag=true;
@@ -203,15 +219,22 @@ export default {
           if(res.data.code===1){
             this.reset();
             this.getData();
+            this.$message({
+              message: '修改成功',
+              type: 'success'
+            });
           }
         })
       }else{
         //添加
         this.axios.post('/api/add',{...this.ruleForm}).then((res)=>{
-          console.log(res)
           if(res.data.code===1){
             this.reset();
             this.getData();
+            this.$message({
+              message: '添加成功',
+              type: 'success'
+            });
           }
         })
       }
@@ -227,24 +250,6 @@ export default {
         status:''
       },
       this.editId='';
-    },
-    //上一页
-    prev(){
-      if(this.pageNum>=1){
-        this.pageNum--;
-        this.getData();
-      }else{
-        return
-      }
-    },
-    //下一页
-    next(){
-      if(this.pageNum<this.total){
-        this.pageNum++;
-        this.getData();
-      }else{
-        return
-      }
     },
   },
   created(){

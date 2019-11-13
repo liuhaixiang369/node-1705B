@@ -88,7 +88,9 @@ router.get('/api/list', async (ctx) => {
     } = ctx.query;
     let startIndex = (pageNum - 1) * limit;
     let data = await ctx.mysql.query(`select * from examA limit ${startIndex},${limit}`);
+
     let count = await ctx.mysql.query('select count(*) from examA');
+
     let total =count.data[0]['count(*)'];
     if (data.data.length) {
         ctx.body = {
@@ -99,7 +101,7 @@ router.get('/api/list', async (ctx) => {
     } else {
         ctx.body = {
             code: 0,
-            msg: '暂无数据'
+            msg: '暂无数据',
         }
     }
 })
