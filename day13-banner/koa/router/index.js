@@ -1,24 +1,20 @@
 const router = require('koa-router')();
-const query = require('../db/query.js');
 
 router.post('/api/add', async (ctx) => {
     let {
-        time,
         title,
         auth,
-        isagain,
-        num,
-        status
+        isagain
     } = ctx.request.body;
-    let sql = 'insert into examA (title,auth,isagain,num,status) values (?,?,?,?,?)';
-    if (!title || !auth || !isagain || !num || !status) {
+    let sql = 'insert into examA (title,auth,isagain) values (?,?,?)';
+    if (!title || !auth || !isagain) {
         return ctx.body = {
             code: 0,
             msg: '参数不全'
         }
     }
 
-    let isData = await query('select * from examA where title=?', [title]);
+    let isData = await ctx.mysql.query('select * from examA where title=?', [title]);
 
     if (isData.data.length) {
         return ctx.body = {
@@ -26,7 +22,7 @@ router.post('/api/add', async (ctx) => {
             msg: '此人已经存在'
         }
     } else {
-        let data = await query(sql, [title, auth, isagain, num, status]);
+        let data = await ctx.mysql.query(sql, [title, auth, isagain]);
         if (data.msg == 'success') {
             ctx.body = {
                 code: 1,
@@ -52,7 +48,7 @@ router.post('/api/edit', async (ctx) => {
         id
     } = ctx.request.body;
     const sql = `update examA set title=?,auth=?,isagain=?,num=?,status=? where id=?`
-    let res = await query(sql, [title, auth, isagain, num, status, id]);
+    let res = await ctx.mysql.query(sql, [title, auth, isagain, num, status, id]);
     if (res.msg == 'success') {
         ctx.body = {
             code: 1,
@@ -70,9 +66,8 @@ router.get('/api/delete', async (ctx) => {
     let {
         id
     } = ctx.query;
-    console.log(ctx.query)
     let sql = 'delete from examA where id=?';
-    let res = await query(sql, [id]);
+    let res = await ctx.mysql.query(sql, [id]);
     if (res.msg === 'error') {
         ctx.body = {
             code: 0,
@@ -92,9 +87,9 @@ router.get('/api/list', async (ctx) => {
         limit
     } = ctx.query;
     let startIndex = (pageNum - 1) * limit;
-    let data = await query(`select * from examA limit ${startIndex},${limit}`);
-    let count = await query('select count(*) from examA');
-    let total = Math.ceil(count.data[0]['count(*)'] / limit)
+    let data = await ctx.mysql.query(`select * from examA limit ${startIndex},${limit}`);
+    let count = await ctx.mysql.query('select count(*) from examA');
+    let total =count.data[0]['count(*)'];
     if (data.data.length) {
         ctx.body = {
             code: 1,

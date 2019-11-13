@@ -70,7 +70,6 @@ router.get('/api/delete', async (ctx) => {
     let {
         id
     } = ctx.query;
-    console.log(ctx.query)
     let sql = 'delete from examA where id=?';
     let res = await query(sql, [id]);
     if (res.msg === 'error') {
@@ -94,7 +93,7 @@ router.get('/api/list', async (ctx) => {
     let startIndex = (pageNum - 1) * limit;
     let data = await query(`select * from examA limit ${startIndex},${limit}`);
     let count = await query('select count(*) from examA');
-    let total = Math.ceil(count.data[0]['count(*)'] / limit)
+    let total = count.data[0]['count(*)'];
     if (data.data.length) {
         ctx.body = {
             code: 1,

@@ -1,9 +1,64 @@
 <template>
   <div class="home">
     <el-container>
-      <el-header>Header</el-header>
+      <el-header>
+        <el-menu class="el-menu-demo" mode="horizontal">
+          <el-menu-item index="1">处理中心</el-menu-item>
+          <el-submenu index="2">
+            <template slot="title">我的工作台</template>
+            <el-menu-item index="2-1">选项1</el-menu-item>
+            <el-menu-item index="2-2">选项2</el-menu-item>
+            <el-menu-item index="2-3">选项3</el-menu-item>
+            <el-submenu index="2-4">
+              <template slot="title">选项4</template>
+              <el-menu-item index="2-4-1">选项1</el-menu-item>
+              <el-menu-item index="2-4-2">选项2</el-menu-item>
+              <el-menu-item index="2-4-3">选项3</el-menu-item>
+            </el-submenu>
+          </el-submenu>
+          <el-menu-item index="3">消息中心</el-menu-item>
+          <el-menu-item index="4"><a target="_blank">订单管理</a></el-menu-item>
+        </el-menu>
+      </el-header>
       <el-container>
-        <el-aside width="200px">Aside</el-aside>
+        <el-aside width="200px">
+          <el-col :span="12">
+            <el-menu
+              default-active="2"
+              class="el-menu-vertical-demo">
+              <el-submenu index="1">
+                <template slot="title">
+                  <i class="el-icon-location"></i>
+                  <span>导航一</span>
+                </template>
+                <el-menu-item-group>
+                  <template slot="title">分组一</template>
+                  <el-menu-item index="1-1">选项1</el-menu-item>
+                  <el-menu-item index="1-2">选项2</el-menu-item>
+                </el-menu-item-group>
+                <el-menu-item-group title="分组2">
+                  <el-menu-item index="1-3">选项3</el-menu-item>
+                </el-menu-item-group>
+                <el-submenu index="1-4">
+                  <template slot="title">选项4</template>
+                  <el-menu-item index="1-4-1">选项1</el-menu-item>
+                </el-submenu>
+              </el-submenu>
+              <el-menu-item index="2">
+                <i class="el-icon-menu"></i>
+                <span slot="title">导航二</span>
+              </el-menu-item>
+              <el-menu-item index="3">
+                <i class="el-icon-document"></i>
+                <span slot="title">导航三</span>
+              </el-menu-item>
+              <el-menu-item index="4">
+                <i class="el-icon-setting"></i>
+                <span slot="title">导航四</span>
+              </el-menu-item>
+            </el-menu>
+          </el-col>
+        </el-aside>
         <el-main>
           <el-button @click="addItem">创建新banner</el-button>
             <el-table
@@ -65,11 +120,15 @@
               <el-button type="primary" @click="add">{{editId?'修改':'添加'}}</el-button>
             </span>
           </el-dialog>
-          <p class="p">
-            <button class="prev" @click="prev">上一页</button>
-            <span v-for="index in total" :key="index">{{index}}</span>
-            <button class="next" @click="next">下一页</button>
-          </p>
+          <el-pagination
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page="pageNum"
+            :page-sizes="[3, 6, 9, 12]"
+            :page-size="limit"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="total">
+          </el-pagination>
         </el-main>
       </el-container>
     </el-container>
@@ -81,20 +140,28 @@ export default {
     return {
       tableData: [],
       pageNum:1,
-      limit:5,
+      limit:3,
       flag: false,
       ruleForm:{
         title:'',
         auth:'',
         isagain:'',
-        num:'',
-        status:''
       },
       editId:'',
       total:0
     }
   },
   methods:{
+    //控制每页显示的条数
+    handleSizeChange(val) {
+      this.limit=val;
+      this.getData();
+    },
+    //当前显示第几页
+    handleCurrentChange(val) {
+      this.pageNum=val;
+      this.getData();
+    },
     //删除
     del(id) {
       this.axios.get('/api/delete',{params:{id}}).then((res)=>{
@@ -139,8 +206,9 @@ export default {
           }
         })
       }else{
-        //如果editId没有值就添加
+        //添加
         this.axios.post('/api/add',{...this.ruleForm}).then((res)=>{
+          console.log(res)
           if(res.data.code===1){
             this.reset();
             this.getData();
@@ -231,6 +299,18 @@ export default {
   .el-main {
     background-color: #E9EEF3;
     color: #333;
-    text-align: center;
+    text-align: right;
+  }
+  .el-col{
+    width:100%;
+    height:100%;
+  }
+  .el-menu{
+    width:100%;
+    height:100%;
+  }
+  .el-header{
+    width:100%;
+    padding:0;
   }
 </style>

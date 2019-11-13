@@ -2,11 +2,10 @@ import React, {
     Component
 } from 'react';
 import {
-    Table,Divider,Pagination, Button,Modal,Input,DatePicker, Form, Select, Cascader, InputNumber
+    Table,Divider,Pagination, Button,Modal,Input,DatePicker,
 } from 'antd';
 import axios from 'axios';
 import './css/home.css';
-const { Option } = Select;
 
 export default class home extends Component {
     constructor(props) {
@@ -61,6 +60,7 @@ export default class home extends Component {
             total:0
         }
     }
+    //获取数据
     getData() {
         let {pageNum,limit}=this.state;
         axios.get('/api/list',{params:{pageNum,limit}}).then(res=>{
@@ -153,19 +153,20 @@ export default class home extends Component {
             [e.target.name]:e.target.value
         })
     }
-    onChange = page => {
+    onChange = cur => {
         this.setState({
-          pageNum: page,
+            pageNum:cur
+        },()=>{
+            this.getData();
         });
-        this.getData();
     }
     render() {
-        let {title,auth,isagain,num,status,total}=this.state;
+        let {title,auth,isagain,num,status,total,pageNum}=this.state;
         return ( 
             <div className = "home" >
                 <Button type="primary" onClick={this.add.bind(this)}>添加</Button>
                 <Table columns = {this.state.columns} pagination={false} rowKey="id" dataSource = {this.state.data}/> 
-                <Pagination defaultPageSize={5} current={this.state.pageNum} onChange={this.onChange} total={20} />
+                <Pagination defaultPageSize={5} defaultCurrent={1} current={pageNum} onChange={this.onChange} total={total} />
                 <Modal
                     visible={this.state.flag}
                     onOk={this.addItem.bind(this)}

@@ -86,11 +86,13 @@
       <el-button type="primary" @click="add">{{editId?'修改':'添加'}}</el-button>
     </span>
   </el-dialog>
-  <p class="p">
-    <button class="prev" @click="prev">上一页</button>
-    <span v-for="index in total" :key="index">{{index}}</span>
-    <button class="next" @click="next">下一页</button>
-  </p>
+  <el-pagination
+    background
+    :page-size="limit"
+    layout="prev, pager, next"
+    @current-change="handleCurrentChange"
+    :total="total">
+  </el-pagination>
   </div>
 </template>
 <script>
@@ -114,6 +116,11 @@ export default {
     }
   },
   methods:{
+    //当前显示第几页
+    handleCurrentChange(val) {
+      this.pageNum=val;
+      this.getData();
+    },
     //删除
     del(id) {
       this.axios.get('/api/delete',{params:{id}}).then((res)=>{
@@ -126,6 +133,7 @@ export default {
     getData(){
       let {pageNum,limit}=this;
       this.axios.get('/api/list',{params:{pageNum,limit}}).then((res)=>{
+        console.log(res)
         this.tableData=res.data.data;
         this.total=res.data.total;
       })
@@ -154,7 +162,6 @@ export default {
         //如果editId有值就修改
         this.axios.post('/api/edit',{...this.ruleForm,id:this.editId}).then((res)=>{
           if(res.data.code===1){
-            this.reset();
             this.getData();
           }
         })
@@ -162,11 +169,11 @@ export default {
         //如果editId没有值就添加
         this.axios.post('/api/add',{...this.ruleForm}).then((res)=>{
           if(res.data.code===1){
-            this.reset();
             this.getData();
           }
         })
       }
+      this.reset();
       this.flag=false;
     },
     //清空input框
@@ -180,24 +187,6 @@ export default {
         status:''
       },
       this.editId='';
-    },
-    //上一页
-    prev(){
-      if(this.pageNum>=1){
-        this.pageNum--;
-        this.getData();
-      }else{
-        return
-      }
-    },
-    //下一页
-    next(){
-      if(this.pageNum<this.total){
-        this.pageNum++;
-        this.getData();
-      }else{
-        return
-      }
     },
   },
   created(){
