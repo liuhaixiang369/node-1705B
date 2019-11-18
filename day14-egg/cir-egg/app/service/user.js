@@ -16,12 +16,33 @@ class UserService extends Service {
     await this.app.mysql.insert('userlist', {username,password,age});
   }
   //删除
-  async del(id) {
-    await this.app.mysql.delete('userlist',{id});
+  async del(username) {
+    await this.app.mysql.delete('userlist',{username});
   }
   //修改
-  async update(row) {
-    await this.app.mysql.update('userlist', row);
+  async update(username,password) {
+    await this.app.mysql.query('update userlist set password=? where username=?',[username,password]);
+  }
+  //查找首页
+  async list() {
+    const data=await this.app.mysql.select('home_list');
+    return data;
+  }
+  //查找用户
+  async user(username) {
+    const $sql=`select age,head,name from home_list,userlist where userlist.username='${username}' and userlist.username=home_list.name`;
+    const data=await this.app.mysql.query($sql);
+    return data
+  }
+  //查找用户头像
+  async head(name) {
+    const $sql=`select head from home_list where name='${name}'`;
+    const data=await this.app.mysql.query($sql);
+    return data
+  }
+  //添加说说
+  async add(row) {
+    await this.app.mysql.insert('home_list', row);
   }
 }
 module.exports=UserService;

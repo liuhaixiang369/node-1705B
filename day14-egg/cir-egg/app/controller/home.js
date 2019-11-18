@@ -25,7 +25,6 @@ class HomeController extends Controller {
   async login() {
     const {ctx} = this;
     let {username,password} = ctx.request.body;
-    console.log(username,password)
     let user=await ctx.service.user.login(username, password);
     if(user){
       let token = jwt.sign({...user},'liuhx', {expiresIn:60});
@@ -43,8 +42,8 @@ class HomeController extends Controller {
   }
   async del() {
     const {ctx} = this;
-    let {id} = ctx.query;
-    await ctx.service.user.del(id);
+    let {username} = ctx.query;
+    await ctx.service.user.del(username);
     ctx.body = {
       code: 1,
       msg: '删除成功'
@@ -53,11 +52,51 @@ class HomeController extends Controller {
 
   async update() {
     const {ctx} = this;
-    let {username,password,age,id} = ctx.query
-    await ctx.service.user.update({username,password,age,id});
+    let {username,password,pwd} = ctx.request.body;
+    await ctx.service.user.update(username,password);
     ctx.body = {
       code: 1,
       msg: '修改成功'
+    }
+  }
+
+  async list() {
+    const {ctx} = this;
+    let data=await ctx.service.user.list();
+    ctx.body = {
+      code: 1,
+      data
+    }
+  }
+
+  async user() {
+    const {ctx} = this;
+    let {username}=ctx.request.body;
+    console.log(username)
+    let data=await ctx.service.user.user(username);
+    ctx.body = {
+      code: 1,
+      data
+    }
+  }
+
+  async head() {
+    const {ctx} = this;
+    let {name}=ctx.query;
+    let data=await ctx.service.user.head(name);
+    ctx.body = {
+      code: 1,
+      data
+    }
+  }
+
+  async add() {
+    const {ctx} = this;
+    let {img,txt,name,time,head,like}=ctx.request.body;
+    await ctx.service.user.add({img,txt,name,time,head,like});
+    ctx.body={
+      code:1,
+      msg:'添加成功'
     }
   }
 }

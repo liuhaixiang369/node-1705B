@@ -22,9 +22,12 @@ export default {
     },
     methods:{
         login(){
+            let {username,password}=this.ruleForm;
             this.axios.post('/api/login',{...this.ruleForm}).then((res)=>{
                 if(res.data.code===1){
                     this.rese();
+                    localStorage.setItem('username',username)
+                    localStorage.setItem('password',password)
                     this.$router.push('/home');
                 }else{
                     this.rese();
