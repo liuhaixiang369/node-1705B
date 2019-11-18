@@ -27,8 +27,8 @@ class HomeController extends Controller {
     let {username,password} = ctx.request.body;
     let user=await ctx.service.user.login(username, password);
     if(user){
-      let token = jwt.sign({...user},'liuhx', {expiresIn:60});
-      ctx.cookies.set(token)
+      let token = jwt.sign({...user},'liuhx', {expiresIn:600*600});   
+      ctx.cookies.set('token',token)
       ctx.body = {
         code: 1,
         msg: '登录成功'

@@ -1,11 +1,11 @@
 <template>
     <div class="my">
         <header>
-            <dl>
-                <dt><img :src="data[0].head" alt=""></dt>
+            <dl v-if="data">
+                <dt><img :src="data.head" alt=""></dt>
                 <dd>
-                    <p>{{data[0].name}}</p>
-                    <p>年龄：{{data[0].age}}</p>
+                    <p>{{data.name}}</p>
+                    <p>年龄：{{data.age}}</p>
                 </dd>
             </dl>
         </header>
@@ -73,9 +73,8 @@ export default {
         this.username=localStorage.getItem('username');
         let {username}=this;
         this.axios.post('/api/user',{username}).then(res=>{
-            console.log(res.data.data)
             if(res.data.code===1){
-                this.data=res.data.data
+                this.data=res.data.data[0]
             }
         })
     }

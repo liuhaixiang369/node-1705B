@@ -5,9 +5,9 @@
       <input type="text" placeholder="试试搜索你的好友名字">
     </header>
     <div class="main">
-      <div class="kay" v-for="(item) in data" :key="item.id">
+      <div class="kay" v-if="data.length" v-for="(item) in data" :key="item.id">
         <dl>
-          <dt><img :src="item.head" alt=""></dt>
+           <dt><img :src="item.head" alt=""></dt>
           <dd>
             <p>
               <span>{{item.name}}</span>
@@ -20,7 +20,7 @@
           <p><img :src="item.img" alt=""></p>
           <p>{{item.txt}}</p>
           <p>
-            <span><i class="iconfont icon-dianzan"></i>{{item.like}}</span>
+            <span @click="clickLike(item)"><i class="iconfont icon-dianzan"></i>{{item.like}}</span>
             <span class="comt"><i class="iconfont icon-xiaoxi"></i></span>
           </p>
         </div>
@@ -33,11 +33,15 @@
     <div class="alert" v-show="flag">
       <div class="popup">
         <input type="text" placeholder="输入要发布的文本内容" v-model="txt">
-        <b>
-          <p>+</p>
-          <p>上传图片</p>
-          <img :src="img" alt="">
-        </b>
+      <el-upload
+  class="avatar-uploader"
+  action="https://jsonplaceholder.typicode.com/posts/"
+  :show-file-list="false"
+  :on-success="handleAvatarSuccess"
+  :before-upload="beforeAvatarUpload">
+  <img v-if="img" :src="img" class="avatar">
+  <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+</el-upload>
         <p>只支持.jpg格式</p>
         <button @click="out()" class="out">取消</button>
         <button @click="add()">发布</button>
@@ -53,15 +57,34 @@ export default {
       flag:false,
       img:'',
       txt:'',
-      like:0
+      like:0,
+      likeFlag:false
     }
   },
   methods:{
+    clickLike(item){
+      console.log(item)
+      //  style="{'color':likeFlag?'red':'#000'}"
+    },
     alert(){
       this.flag=true;
     },
     out(){
       this.flag=false;
+    },
+    handleAvatarSuccess(res, file) {
+      this.img = URL.createObjectURL(file.raw);
+    },
+    beforeAvatarUpload(file) {
+      const isJPG = file.type === 'image/jpeg';
+      const isLt2M = file.size / 1024 / 1024 < 2;
+      if (!isJPG) {
+        this.$message.error('上传头像图片只能是 JPG 格式!');
+      }
+      if (!isLt2M) {
+        this.$message.error('上传头像图片大小不能超过 2MB!');
+      }
+      return isJPG && isLt2M;
     },
     add(){
       let {img,txt,like}=this;
@@ -75,18 +98,25 @@ export default {
         if(res.data.code===1){
           let {head}=res.data.data[0];
           this.axios.post('/api/add',{img,txt,name,time,head,like}).then(res=>{
-            console.log(res)
+            if(res.data.code===1){
+              this.getData();
+            }
           })
+        }
+      })
+      this.flag=false;
+    },
+  
+    getData(){
+      this.axios.get('/api/list').then(res=>{
+        if(res.data.code===1){
+          this.data=res.data.data
         }
       })
     }
   },
   created(){
-    this.axios.get('/api/list').then(res=>{
-      if(res.data.code===1){
-        this.data=res.data.data
-      }
-    })
+    this.getData();
   },
 }
 </script>
@@ -171,8 +201,8 @@ export default {
               .comt{
                 margin-right: 0.3rem;
               }
-              i{
-                color:red;
+              .iconfont{
+                color:#000;
               }
             }
             img{
@@ -246,5 +276,28 @@ export default {
         }
       }
     }
+  }
+  .avatar-uploader .el-upload {
+    border: 1px dashed #d9d9d9;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .avatar-uploader .el-upload:hover {
+    border-color: #409EFF;
+  }
+  .avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    width: 2rem;
+    height: 2rem;
+    line-height:2rem;
+    text-align: center;
+  }
+  .avatar {
+    width: 2rem;
+    height: 2rem;
+    display: block;
   }
 </style>
